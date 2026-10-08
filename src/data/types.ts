@@ -15,6 +15,11 @@ export type ScenarioId =
   | 'realtime-chat'
   | 'video-streaming'
   | 'multi-region-kv'
+  | 'web-app-scaling'
+  | 'pastebin'
+  | 'photo-upload'
+  | 'leaderboard'
+  | 'notification-service'
 
 export interface AtlasNode {
   id: string
