@@ -3,6 +3,8 @@ interface ToolbarProps {
   onZoomIn: () => void
   onZoomOut: () => void
   onResetLayout: () => void
+  soundOn: boolean
+  onToggleSound: () => void
 }
 
 export function Toolbar({
@@ -10,6 +12,8 @@ export function Toolbar({
   onZoomIn,
   onZoomOut,
   onResetLayout,
+  soundOn,
+  onToggleSound,
 }: ToolbarProps) {
   return (
     <div className="sda-toolbar" role="toolbar" aria-label="Canvas controls">
@@ -24,6 +28,15 @@ export function Toolbar({
       </button>
       <button type="button" className="sda-btn" onClick={onResetLayout}>
         Reset layout
+      </button>
+      <button
+        type="button"
+        className="sda-btn sda-btn--sound"
+        onClick={onToggleSound}
+        aria-pressed={soundOn}
+        title={soundOn ? 'Mute sound effects' : 'Turn on sound effects'}
+      >
+        {soundOn ? 'Sound on' : 'Sound off'}
       </button>
     </div>
   )

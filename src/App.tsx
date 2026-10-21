@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { atlasData } from './data/atlas'
 import type { AtlasNode, EdgeRelation, ScenarioId } from './data/types'
 import { createNodeSearch, matchNodeIds } from './lib/search'
+import { isSoundEnabled, playSound, setSoundEnabled } from './lib/sound'
 import { AtlasCanvas } from './components/AtlasCanvas'
 import { DetailPanel } from './components/DetailPanel'
 import { Header } from './components/Header'
@@ -16,6 +17,7 @@ export default function App() {
   const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [layoutKey, setLayoutKey] = useState(0)
+  const [soundOn, setSoundOn] = useState(isSoundEnabled)
   const [canvasApi, setCanvasApi] = useState<{
     fitView: () => void
     zoomIn: () => void
@@ -62,7 +64,26 @@ export default function App() {
     return out
   }, [selectedNode, scenarioEdges, scenarioNodes])
 
+  const onSelect = (id: string | null) => {
+    if (id === selectedId) return
+    if (id === null) {
+      playSound('deselect')
+    } else {
+      const node = scenarioNodes.find((n) => n.id === id)
+      if (node) playSound(node.type)
+    }
+    setSelectedId(id)
+  }
+
+  const onToggleSound = () => {
+    const next = !soundOn
+    setSoundEnabled(next)
+    setSoundOn(next)
+    if (next) playSound('toggleOn')
+  }
+
   const onScenarioChange = (id: ScenarioId) => {
+    if (id !== scenario) playSound('scenario')
     setScenario(id)
     setSelectedId(null)
     setQuery('')
@@ -97,13 +118,25 @@ export default function App() {
       />
 
       <Toolbar
-        onFit={() => canvasApi?.fitView()}
-        onZoomIn={() => canvasApi?.zoomIn()}
-        onZoomOut={() => canvasApi?.zoomOut()}
+        onFit={() => {
+          playSound('fit')
+          canvasApi?.fitView()
+        }}
+        onZoomIn={() => {
+          playSound('zoomIn')
+          canvasApi?.zoomIn()
+        }}
+        onZoomOut={() => {
+          playSound('zoomOut')
+          canvasApi?.zoomOut()
+        }}
         onResetLayout={() => {
+          playSound('fit')
           setLayoutKey((k) => k + 1)
           window.setTimeout(() => canvasApi?.fitView(), 50)
         }}
+        soundOn={soundOn}
+        onToggleSound={onToggleSound}
       />
 
       <AtlasCanvas
@@ -111,7 +144,7 @@ export default function App() {
         atlasEdges={scenarioEdges}
         matchIds={matchIds}
         selectedId={selectedId}
-        onSelect={setSelectedId}
+        onSelect={onSelect}
         layoutKey={layoutKey}
         onReady={onReady}
       />
@@ -121,7 +154,7 @@ export default function App() {
       <DetailPanel
         node={selectedNode}
         open={panelOpen}
-        onClose={() => setSelectedId(null)}
+        onClose={() => onSelect(null)}
         related={related}
       />
 
