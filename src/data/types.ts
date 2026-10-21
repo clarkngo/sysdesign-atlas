@@ -20,6 +20,12 @@ export type ScenarioId =
   | 'photo-upload'
   | 'leaderboard'
   | 'notification-service'
+  | 'game-matchmaking'
+  | 'realtime-game-server'
+  | 'game-patch-delivery'
+  | 'lms-gradebook'
+  | 'lms-assignment-deadline'
+  | 'lms-multi-tenant'
 
 export interface AtlasNode {
   id: string
