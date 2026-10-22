@@ -26,6 +26,17 @@ export type ScenarioId =
   | 'lms-gradebook'
   | 'lms-assignment-deadline'
   | 'lms-multi-tenant'
+  | 'unique-id-generator'
+  | 'search-autocomplete'
+  | 'web-crawler'
+  | 'distributed-cache'
+  | 'ticket-booking'
+  | 'database-indexing'
+  | 'choose-database'
+  | 'api-design'
+  | 'user-auth'
+  | 'sharding-basics'
+  | 'monitoring-basics'
 
 export interface AtlasNode {
   id: string
