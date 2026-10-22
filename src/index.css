@@ -61,6 +61,7 @@ body::before {
 
 .sda-app {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto auto 1fr;
   height: 100%;
   min-height: 100dvh;
@@ -735,6 +736,7 @@ body::before {
 
   .sda-scenarios__groups {
     flex-direction: column;
+    flex-wrap: nowrap;
     align-items: stretch;
     gap: 0.45rem;
   }
