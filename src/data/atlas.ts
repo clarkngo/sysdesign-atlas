@@ -1,9 +1,10 @@
-import type { AtlasData } from './types'
+import type { AtlasData, ScenarioId, ScenarioMeta } from './types'
 import { DIFFICULTY_ORDER } from './types'
 import { apiDesign } from './scenarios/api-design'
 import { chooseDatabase } from './scenarios/choose-database'
 import { databaseIndexing } from './scenarios/database-indexing'
 import { distributedCache } from './scenarios/distributed-cache'
+import { eventDrivenOrders } from './scenarios/event-driven-orders'
 import { gameMatchmaking } from './scenarios/game-matchmaking'
 import { gamePatchDelivery } from './scenarios/game-patch-delivery'
 import { leaderboard } from './scenarios/leaderboard'
@@ -14,11 +15,14 @@ import { monitoringBasics } from './scenarios/monitoring-basics'
 import { multiRegionKv } from './scenarios/multi-region-kv'
 import { notificationService } from './scenarios/notification-service'
 import { pastebin } from './scenarios/pastebin'
+import { paymentSystem } from './scenarios/payment-system'
 import { photoUpload } from './scenarios/photo-upload'
 import { rateLimiter } from './scenarios/rate-limiter'
 import { realtimeChat } from './scenarios/realtime-chat'
 import { realtimeGameServer } from './scenarios/realtime-game-server'
+import { rideSharing } from './scenarios/ride-sharing'
 import { searchAutocomplete } from './scenarios/search-autocomplete'
+import { searchEngine } from './scenarios/search-engine'
 import { shardingBasics } from './scenarios/sharding-basics'
 import { socialFeed } from './scenarios/social-feed'
 import { ticketBooking } from './scenarios/ticket-booking'
@@ -58,11 +62,44 @@ const bundles = [
   userAuth,
   shardingBasics,
   monitoringBasics,
+  rideSharing,
+  paymentSystem,
+  searchEngine,
+  eventDrivenOrders,
+]
+
+// Suggested order for working through the intro tier: each step builds on
+// concepts from the ones before it.
+export const LEARNING_PATH: ScenarioId[] = [
+  'web-app-scaling',
+  'distributed-cache',
+  'database-indexing',
+  'choose-database',
+  'api-design',
+  'user-auth',
+  'lms-gradebook',
+  'monitoring-basics',
+  'url-shortener',
+  'pastebin',
+  'unique-id-generator',
+  'rate-limiter',
+  'photo-upload',
+  'notification-service',
+  'ticket-booking',
+  'leaderboard',
+  'search-autocomplete',
+  'web-crawler',
+  'sharding-basics',
 ]
 
 const difficultyRank = Object.fromEntries(
   DIFFICULTY_ORDER.map((d, i) => [d, i]),
 ) as Record<string, number>
+
+function pathRank(s: ScenarioMeta) {
+  const i = LEARNING_PATH.indexOf(s.id)
+  return i === -1 ? Number.MAX_SAFE_INTEGER : i
+}
 
 export const atlasData: AtlasData = {
   scenarios: bundles
@@ -70,6 +107,7 @@ export const atlasData: AtlasData = {
     .sort(
       (a, b) =>
         difficultyRank[a.difficulty] - difficultyRank[b.difficulty] ||
+        pathRank(a) - pathRank(b) ||
         a.label.localeCompare(b.label),
     ),
   nodes: bundles.flatMap((b) => b.nodes),

@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
-import { atlasData } from './data/atlas'
+import { atlasData, LEARNING_PATH } from './data/atlas'
 import type { AtlasNode, EdgeRelation, ScenarioId } from './data/types'
-import { createNodeSearch, matchNodeIds } from './lib/search'
+import { countByScenario, createNodeSearch, searchNodes } from './lib/search'
 import { isSoundEnabled, playSound, setSoundEnabled } from './lib/sound'
 import { AtlasCanvas } from './components/AtlasCanvas'
 import { DetailPanel } from './components/DetailPanel'
@@ -11,9 +11,7 @@ import { ScenarioPicker } from './components/ScenarioPicker'
 import { Toolbar } from './components/Toolbar'
 
 export default function App() {
-  const [scenario, setScenario] = useState<ScenarioId>(
-    atlasData.scenarios[0].id,
-  )
+  const [scenario, setScenario] = useState<ScenarioId>(LEARNING_PATH[0])
   const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [layoutKey, setLayoutKey] = useState(0)
@@ -40,9 +38,23 @@ export default function App() {
     [scenarioNodeIds],
   )
 
-  const fuse = useMemo(() => createNodeSearch(scenarioNodes), [scenarioNodes])
-  const matchIds = useMemo(() => matchNodeIds(fuse, query), [fuse, query])
+  const fuse = useMemo(() => createNodeSearch(atlasData.nodes), [])
+  const allMatches = useMemo(() => searchNodes(fuse, query), [fuse, query])
+  const matchCounts = useMemo(
+    () => (allMatches ? countByScenario(allMatches) : null),
+    [allMatches],
+  )
+  const matchIds = useMemo(
+    () =>
+      allMatches
+        ? new Set(allMatches.filter((n) => n.scenario === scenario).map((n) => n.id))
+        : null,
+    [allMatches, scenario],
+  )
   const matchCount = matchIds ? matchIds.size : null
+  const otherScenarioCount = matchCounts
+    ? [...matchCounts.keys()].filter((id) => id !== scenario).length
+    : 0
 
   const selectedNode: AtlasNode | null = useMemo(
     () => scenarioNodes.find((n) => n.id === selectedId) ?? null,
@@ -86,7 +98,6 @@ export default function App() {
     if (id !== scenario) playSound('scenario')
     setScenario(id)
     setSelectedId(null)
-    setQuery('')
     setLayoutKey((k) => k + 1)
   }
 
@@ -109,12 +120,15 @@ export default function App() {
         query={query}
         onQueryChange={setQuery}
         matchCount={matchCount}
+        otherScenarioCount={otherScenarioCount}
       />
 
       <ScenarioPicker
         scenarios={atlasData.scenarios}
         activeId={scenario}
         onChange={onScenarioChange}
+        learningPath={LEARNING_PATH}
+        matchCounts={matchCounts}
       />
 
       <Toolbar
@@ -161,6 +175,12 @@ export default function App() {
       {matchIds !== null && matchIds.size === 0 && (
         <div className="sda-empty-search" role="status">
           <p>No nodes match “{query.trim()}” in this scenario.</p>
+          {otherScenarioCount > 0 && (
+            <p>
+              Found in {otherScenarioCount} other scenario
+              {otherScenarioCount === 1 ? '' : 's'}: highlighted above.
+            </p>
+          )}
           <button type="button" className="sda-btn" onClick={() => setQuery('')}>
             Clear search
           </button>

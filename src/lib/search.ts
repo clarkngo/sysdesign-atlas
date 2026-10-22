@@ -1,5 +1,5 @@
 import Fuse from 'fuse.js'
-import type { AtlasNode } from '../data/types'
+import type { AtlasNode, ScenarioId } from '../data/types'
 
 export function createNodeSearch(nodes: AtlasNode[]) {
   return new Fuse(nodes, {
@@ -15,11 +15,17 @@ export function createNodeSearch(nodes: AtlasNode[]) {
   })
 }
 
-export function matchNodeIds(
+export function searchNodes(
   fuse: Fuse<AtlasNode>,
   query: string,
-): Set<string> | null {
+): AtlasNode[] | null {
   const q = query.trim()
   if (!q) return null
-  return new Set(fuse.search(q).map((r) => r.item.id))
+  return fuse.search(q).map((r) => r.item)
+}
+
+export function countByScenario(nodes: AtlasNode[]) {
+  const counts = new Map<ScenarioId, number>()
+  for (const n of nodes) counts.set(n.scenario, (counts.get(n.scenario) ?? 0) + 1)
+  return counts
 }

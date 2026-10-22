@@ -10,12 +10,16 @@ interface ScenarioPickerProps {
   scenarios: ScenarioMeta[]
   activeId: ScenarioId
   onChange: (id: ScenarioId) => void
+  learningPath: ScenarioId[]
+  matchCounts: Map<ScenarioId, number> | null
 }
 
 export function ScenarioPicker({
   scenarios,
   activeId,
   onChange,
+  learningPath,
+  matchCounts,
 }: ScenarioPickerProps) {
   const active = scenarios.find((s) => s.id === activeId)
 
@@ -28,7 +32,9 @@ export function ScenarioPicker({
     <nav className="sda-scenarios" aria-label="Scenarios">
       <div className="sda-scenarios__head">
         <div>
-          <span className="sda-scenarios__kicker">Scenario</span>
+          <span className="sda-scenarios__kicker">
+            {matchCounts ? 'Scenarios with matches' : 'Scenario'}
+          </span>
           {active && (
             <p className="sda-scenarios__blurb">{active.blurb}</p>
           )}
@@ -51,17 +57,41 @@ export function ScenarioPicker({
             >
               {items.map((s) => {
                 const selected = s.id === activeId
+                const step = learningPath.indexOf(s.id)
+                const hits = matchCounts ? (matchCounts.get(s.id) ?? 0) : null
+                const classes = [
+                  'sda-chip',
+                  selected && 'sda-chip--active',
+                  hits === 0 && 'sda-chip--dim',
+                ]
+                  .filter(Boolean)
+                  .join(' ')
                 return (
                   <button
                     key={s.id}
                     type="button"
                     role="option"
                     aria-selected={selected}
-                    className={`sda-chip ${selected ? 'sda-chip--active' : ''}`}
+                    className={classes}
                     onClick={() => onChange(s.id)}
-                    title={s.blurb}
+                    title={
+                      step === -1 ? s.blurb : `Step ${step + 1}: ${s.blurb}`
+                    }
                   >
+                    {step !== -1 && (
+                      <span className="sda-chip__step" aria-hidden>
+                        {String(step + 1).padStart(2, '0')}
+                      </span>
+                    )}
                     {s.label}
+                    {hits !== null && hits > 0 && (
+                      <span
+                        className="sda-chip__count"
+                        aria-label={`${hits} match${hits === 1 ? '' : 'es'}`}
+                      >
+                        {hits}
+                      </span>
+                    )}
                   </button>
                 )
               })}

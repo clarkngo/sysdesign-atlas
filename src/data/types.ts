@@ -37,6 +37,10 @@ export type ScenarioId =
   | 'user-auth'
   | 'sharding-basics'
   | 'monitoring-basics'
+  | 'ride-sharing'
+  | 'payment-system'
+  | 'search-engine'
+  | 'event-driven-orders'
 
 export interface AtlasNode {
   id: string
