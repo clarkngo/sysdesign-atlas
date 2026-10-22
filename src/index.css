@@ -60,12 +60,15 @@ body::before {
 }
 
 .sda-app {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto auto 1fr;
   height: 100%;
   min-height: 100dvh;
   overflow: hidden;
+  /* clip (not just hide) so the off-screen detail panel can't be scrolled into view */
+  overflow: clip;
 }
 
 /* —— Header —— */
@@ -240,6 +243,31 @@ body::before {
     background 0.15s ease,
     border-color 0.15s ease,
     color 0.15s ease;
+}
+
+.sda-chip__step {
+  margin-right: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--ink-faint);
+}
+
+.sda-chip--active .sda-chip__step {
+  color: var(--accent);
+}
+
+.sda-chip__count {
+  margin-left: 0.4rem;
+  padding: 0 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--bg);
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.sda-chip--dim {
+  opacity: 0.4;
 }
 
 .sda-chip:hover {

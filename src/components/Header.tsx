@@ -2,9 +2,15 @@ interface HeaderProps {
   query: string
   onQueryChange: (q: string) => void
   matchCount: number | null
+  otherScenarioCount: number
 }
 
-export function Header({ query, onQueryChange, matchCount }: HeaderProps) {
+export function Header({
+  query,
+  onQueryChange,
+  matchCount,
+  otherScenarioCount,
+}: HeaderProps) {
   return (
     <header className="sda-header">
       <div className="sda-brand">
@@ -36,16 +42,18 @@ export function Header({ query, onQueryChange, matchCount }: HeaderProps) {
           <input
             className="sda-search"
             type="search"
-            placeholder="Challenges, solutions, blockers…"
+            placeholder="Search all scenarios…"
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
             aria-label="Search atlas nodes"
           />
           {matchCount !== null && (
             <span className="sda-search__meta" aria-live="polite">
-              {matchCount === 0
+              {matchCount === 0 && otherScenarioCount === 0
                 ? 'No matches — try a broader term'
-                : `${matchCount} match${matchCount === 1 ? '' : 'es'}`}
+                : `${matchCount} here`}
+              {otherScenarioCount > 0 &&
+                ` · ${otherScenarioCount} other scenario${otherScenarioCount === 1 ? '' : 's'}`}
             </span>
           )}
         </label>
